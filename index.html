@@ -902,7 +902,7 @@ form.addEventListener('submit', async (e)=>{
 
   // 1) Отправка на почту через formsubmit.co (без бэкенда)
   try{
-    const res = await fetch('https://formsubmit.co/ajax/Trasart79@gmail.com', {
+    const res = await fetch('https://formsubmit.co/ajax/Trsart79@gmail.com', {
       method:'POST',
       headers:{'Content-Type':'application/json','Accept':'application/json'},
       body: JSON.stringify({
@@ -917,7 +917,7 @@ form.addEventListener('submit', async (e)=>{
 
   // 2) Дублирование в Telegram через Cloudflare Worker (сработает только после того,
   //    как вы впишете свой реальный адрес Worker'а в TELEGRAM_WORKER_URL выше)
-  if(!TELEGRAM_WORKER_URL.includes('ВАШ-АККАУНТ')){
+  if(!TELEGRAM_WORKER_URL.includes('@SanSanelectro')){
     try{
       await fetch(TELEGRAM_WORKER_URL, {
         method: 'POST',
