@@ -441,7 +441,6 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
       <button class="nav-btn" data-page="home"><span class="toggle"></span>Главная</button>
       <button class="nav-btn" data-page="electro"><span class="toggle"></span>Электромонтаж</button>
       <button class="nav-btn" data-page="cctv"><span class="toggle"></span>Видеонаблюдение</button>
-      <button class="nav-btn" data-page="price"><span class="toggle"></span>Прайс</button>
       <button class="nav-btn" data-page="contacts"><span class="toggle"></span>Контакты</button>
     </nav>
   </div>
@@ -458,7 +457,6 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
       <p>15 лет работаю в электромонтаже и видеонаблюдении — от небольших квартир до промышленных объектов. Теперь беру заказы напрямую, без посредников и накруток: приезжаю, смотрю объект, называю цену и делаю на совесть.</p>
       <div class="btn-row">
         <button class="btn" onclick="goTo('contacts')">Оставить заявку</button>
-        <button class="btn ghost" onclick="goTo('price')">Смотреть прайс</button>
       </div>
       <div class="hero-stats">
         <div><div class="stat-num">15</div><div class="stat-label">ЛЕТ В ПРОФЕССИИ</div></div>
@@ -798,7 +796,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 
 <script>
 // ---------- Навигация по "страницам" ----------
-const pages = ['home','electro','cctv','price','contacts'];
+const pages = ['home','electro','cctv','contacts']; // 'price' скрыт из навигации, но страница page-price осталась в HTML — верните 'price' в этот массив и кнопки в меню, чтобы включить обратно
 function goTo(id){
   pages.forEach(p=>{
     document.getElementById('page-'+p).classList.toggle('active', p===id);
