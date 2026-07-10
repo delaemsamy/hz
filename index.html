@@ -808,6 +808,15 @@ function goTo(id){
   window.scrollTo({top:0, behavior:'smooth'});
   document.getElementById('nav').classList.remove('open');
   document.getElementById('burger').classList.remove('open');
+  // Принудительный пересчёт вёрстки — обходит баг некоторых мобильных браузеров,
+  // когда отступы у блока, который был display:none, применяются неверно после показа
+  const activeEl = document.getElementById('page-'+id);
+  if(activeEl){
+    void activeEl.offsetHeight;
+    activeEl.style.display = 'none';
+    void activeEl.offsetHeight;
+    activeEl.style.display = '';
+  }
 }
 document.querySelectorAll('.nav-btn').forEach(btn=>{
   btn.addEventListener('click', ()=>goTo(btn.dataset.page));
