@@ -92,14 +92,17 @@ header{
 }
 .nav-wrap{
   max-width:1180px; margin:0 auto;
-  display:flex; align-items:center; justify-content:center;
+  display:flex; align-items:center; justify-content:space-between;
   padding:14px 24px;
 }
 .logo{
   display:flex; align-items:center; gap:10px;
   font-family:var(--display); font-weight:700; font-size:17px;
   letter-spacing:0.02em;
+  flex-shrink:0;
+  text-decoration:none;
 }
+.logo-icon{width:20px; height:32px; flex-shrink:0;}
 .logo-mark{
   width:34px; height:34px; border:1.5px solid var(--copper);
   border-radius:50%;
@@ -420,6 +423,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 @media (max-width: 600px){
   .wrap{padding:0 24px;}
   .logo{gap:8px; font-size:15px;}
+  .logo-icon{width:17px; height:27px;}
   .logo-mark{width:30px; height:30px; font-size:11px;}
   .logo small{font-size:9px; letter-spacing:0.05em;}
   h1{font-size:clamp(28px,7.5vw,38px);}
@@ -447,6 +451,8 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
   .steps{grid-template-columns:1fr; row-gap:22px;}
   .hero-stats{gap:18px 24px;}
   .step-num{width:38px; height:38px; font-size:14px; margin-bottom:12px;}
+  .logo small{display:none;}
+  .logo{font-size:13.5px;}
 }
 
 /* плавающая кнопка Telegram — быстрый контакт с мобильного */
@@ -478,13 +484,20 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 
 <header>
   <div class="nav-wrap">
-    <button class="burger" id="burger" aria-label="Меню"><span></span><span></span><span></span></button>
+    <a href="#home" class="logo" onclick="goTo('home'); return false;">
+      <svg class="logo-icon" viewBox="0 0 190 300" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="140,0 20,150 95,150 40,300 190,110 110,110 165,0" fill="var(--text)" transform="translate(-6,5)"/>
+        <polygon points="140,0 20,150 95,150 40,300 190,110 110,110 165,0" fill="var(--copper)"/>
+      </svg>
+      <span>SanSan Electric<small>Электромонтаж и видеонаблюдение</small></span>
+    </a>
     <nav id="nav">
       <button class="nav-btn" data-page="home"><span class="toggle"></span>Главная</button>
       <button class="nav-btn" data-page="electro"><span class="toggle"></span>Электромонтаж</button>
       <button class="nav-btn" data-page="cctv"><span class="toggle"></span>Видеонаблюдение</button>
       <button class="nav-btn" data-page="contacts"><span class="toggle"></span>Контакты</button>
     </nav>
+    <button class="burger" id="burger" aria-label="Меню"><span></span><span></span><span></span></button>
   </div>
 </header>
 
