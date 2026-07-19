@@ -349,6 +349,11 @@ section.block{padding-top:64px; padding-bottom:64px; border-bottom:1px solid var
   margin-top:14px; font-family:var(--mono); font-size:12.5px;
   color:var(--copper-bright); letter-spacing:0.03em;
 }
+.review-stars{color:var(--amber); letter-spacing:2px; font-size:14px;}
+.reviews-empty{margin-top:20px;}
+.review-rating{display:flex; gap:4px; font-size:26px; line-height:1; margin-top:2px; cursor:pointer; user-select:none;}
+.review-rating span{color:var(--line); transition:color .15s;}
+.review-rating span.active{color:var(--amber);}
 
 /* ============ FAQ ============ */
 .faq-list{margin-top:28px; max-width:720px;}
@@ -628,6 +633,36 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
         <h3>Сдача</h3>
         <p>Проверяем всё вместе, показываю как пользоваться. При эксплуатации и возникновении вопросов я всегда на связи.</p>
       </div>
+    </div>
+  </section>
+
+  <section class="block wrap" style="border-bottom:none;" id="page-reviews">
+    <div class="eyebrow">Отзывы</div>
+    <h2>Что говорят клиенты</h2>
+    <p class="lead" id="reviews-empty">Загружаем отзывы…</p>
+    <div class="grid-3" id="reviews-list" style="display:none;"></div>
+
+    <div class="form-panel" style="max-width:600px; margin-top:44px;">
+      <div class="term"><span></span>ОСТАВИТЬ ОТЗЫВ</div>
+      <form id="reviewForm">
+        <label for="r-name">Имя</label>
+        <input id="r-name" type="text" placeholder="Как к вам обращаться" required maxlength="60">
+
+        <label>Оценка</label>
+        <div class="review-rating" id="reviewRating">
+          <span data-value="1">★</span>
+          <span data-value="2">★</span>
+          <span data-value="3">★</span>
+          <span data-value="4">★</span>
+          <span data-value="5">★</span>
+        </div>
+
+        <label for="r-text">Отзыв</label>
+        <textarea id="r-text" placeholder="Расскажите, как всё прошло" required maxlength="600"></textarea>
+
+        <button class="btn" type="submit">Отправить отзыв</button>
+        <div class="form-status" id="reviewStatus"></div>
+      </form>
     </div>
   </section>
 
@@ -1003,6 +1038,94 @@ form.addEventListener('submit', async (e)=>{
   }else{
     statusEl.className = 'form-status err';
     statusEl.textContent = 'Не получилось отправить через сайт — напишите, пожалуйста, в Telegram @SanSanelectro или на почту trah.rov@gmail.com.';
+  }
+});
+
+// ---------- Отзывы ----------
+// Используется тот же Worker (TELEGRAM_WORKER_URL), что и форма заявки.
+// Новые эндпоинты на Worker'е: /api/reviews (GET), /api/review-submit (POST).
+// Каждый новый отзыв сначала уходит вам в Telegram со ссылками "Одобрить"/"Отклонить"
+// и появляется на сайте только после того, как вы его одобрите.
+
+function escapeHtml(str){
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+async function loadReviews(){
+  const emptyEl = document.getElementById('reviews-empty');
+  const listEl = document.getElementById('reviews-list');
+  try{
+    const res = await fetch(TELEGRAM_WORKER_URL + '/api/reviews');
+    const data = await res.json();
+    if(!data.ok || !data.reviews.length){
+      emptyEl.textContent = 'Пока нет отзывов — будьте первым!';
+      return;
+    }
+    listEl.innerHTML = data.reviews.map(r => `
+      <div class="card">
+        <div class="review-stars">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</div>
+        <p>${escapeHtml(r.text)}</p>
+        <div class="review-name">${escapeHtml(r.name)}</div>
+      </div>
+    `).join('');
+    emptyEl.style.display = 'none';
+    listEl.style.display = 'grid';
+  }catch(err){
+    emptyEl.textContent = 'Не удалось загрузить отзывы.';
+  }
+}
+loadReviews();
+
+// Звёздный рейтинг
+let reviewRatingValue = 5;
+const reviewRatingEl = document.getElementById('reviewRating');
+function paintReviewStars(value){
+  [...reviewRatingEl.children].forEach(star=>{
+    star.classList.toggle('active', parseInt(star.dataset.value) <= value);
+  });
+}
+paintReviewStars(reviewRatingValue);
+reviewRatingEl.addEventListener('click', (e)=>{
+  if(e.target.dataset.value){
+    reviewRatingValue = parseInt(e.target.dataset.value);
+    paintReviewStars(reviewRatingValue);
+  }
+});
+
+// Отправка отзыва
+const reviewForm = document.getElementById('reviewForm');
+const reviewStatusEl = document.getElementById('reviewStatus');
+reviewForm.addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  const name = document.getElementById('r-name').value.trim();
+  const text = document.getElementById('r-text').value.trim();
+
+  reviewStatusEl.className = 'form-status';
+  reviewStatusEl.textContent = 'Отправляю...';
+  reviewStatusEl.style.display = 'block';
+
+  try{
+    const res = await fetch(TELEGRAM_WORKER_URL + '/api/review-submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, text, rating: reviewRatingValue })
+    });
+    const data = await res.json();
+    if(data.ok){
+      reviewStatusEl.className = 'form-status ok';
+      reviewStatusEl.textContent = 'Спасибо! Отзыв отправлен на модерацию и скоро появится на сайте.';
+      reviewForm.reset();
+      reviewRatingValue = 5;
+      paintReviewStars(reviewRatingValue);
+    }else{
+      reviewStatusEl.className = 'form-status err';
+      reviewStatusEl.textContent = 'Что-то пошло не так, попробуйте ещё раз.';
+    }
+  }catch(err){
+    reviewStatusEl.className = 'form-status err';
+    reviewStatusEl.textContent = 'Ошибка отправки. Проверьте соединение и попробуйте снова.';
   }
 });
 </script>
