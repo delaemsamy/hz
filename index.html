@@ -1021,7 +1021,7 @@ form.addEventListener('submit', async (e)=>{
 
   // 1) Отправка на почту через formsubmit.co (без бэкенда)
   try{
-    const res = await fetch('https://formsubmit.co/ajax/trah.rov@gmail.com', {
+    const res = await fetch('https://formspree.io/f/mvkglbqd', {
       method:'POST',
       headers:{'Content-Type':'application/json','Accept':'application/json'},
       body: JSON.stringify({
